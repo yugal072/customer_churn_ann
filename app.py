@@ -1,6 +1,9 @@
+import os
+os.environ['TF_USE_LEGACY_KERAS'] = '1'  # ← This is all you need!
+
 import streamlit as st
+import tensorflow as tf
 import numpy as np 
-import tensorflow as tf 
 from sklearn.preprocessing import StandardScaler, LabelEncoder, OneHotEncoder 
 import pandas as pd 
 import pickle 
@@ -64,3 +67,4 @@ if prediction_prob >= 0.5:
     st.write("Customer will churn")
 else:
     st.write("Customer will not churn")
+
