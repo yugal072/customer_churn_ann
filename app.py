@@ -9,8 +9,11 @@ import pandas as pd
 import pickle 
 
 # Load trained model
-model = tf.keras.models.load_model('model.h5')
+@st.cache_resource
+def load_model():
+    return tf.keras.models.load_model('model.h5')
 
+model = load_model()           # now only runs when needed
 with open('label_encoder_gender.pkl','rb') as file:
     label_encoder_gender = pickle.load(file)
 
@@ -67,4 +70,5 @@ if prediction_prob >= 0.5:
     st.write("Customer will churn")
 else:
     st.write("Customer will not churn")
+
 
