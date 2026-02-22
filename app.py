@@ -6,7 +6,25 @@ import tensorflow as tf
 import numpy as np 
 from sklearn.preprocessing import StandardScaler, LabelEncoder, OneHotEncoder 
 import pandas as pd 
-import pickle 
+import pickle
+from tensorflow.keras.layers import InputLayer
+
+# Quick monkey-patch to handle batch_shape → batch_input_shape rename
+original_init = InputLayer.__init__
+
+def patched_init(self, *args, **kwargs):
+    if 'batch_shape' in kwargs:
+        # Convert batch_shape to what older InputLayer expects
+        batch_shape = kwargs.pop('batch_shape')
+        if batch_shape and batch_shape[0] is None:
+            # batch_shape = [None, ...] → batch_input_shape = [None, ...]
+            kwargs['batch_input_shape'] = batch_shape
+        else:
+            # Rare case, fallback to input_shape if no batch dim
+            kwargs['input_shape'] = batch_shape[1:] if len(batch_shape) > 1 else ()
+    return original_init(self, *args, **kwargs)
+
+InputLayer.__init__ = patched_init
 
 # Load trained model
 @st.cache_resource
@@ -70,5 +88,6 @@ if prediction_prob >= 0.5:
     st.write("Customer will churn")
 else:
     st.write("Customer will not churn")
+
 
 
